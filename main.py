@@ -25,8 +25,35 @@ ds_key = pygame.Rect(170, 600, 70, 150)
 fs_key = pygame.Rect(370, 600, 70, 150)
 gs_key = pygame.Rect(470, 600, 70, 150)
 as_key = pygame.Rect(570, 600, 70, 150)
-keys = [c1_key, d_key, e_key, f_key, g_key, a_key, b_key, c2_key, cs_key, ds_key, fs_key, gs_key, as_key]
-key_colors = {'C1':False, 'D': False, 'E': False, 'F':False, 'G':False, 'A':False, 'B':False, 'C2':False, 'C#':False, 'D#':False, 'F#':False, 'G#':False, 'A#':False}
+keys_rects = [c1_key, d_key, e_key, f_key, g_key, a_key, b_key, c2_key, cs_key, ds_key, fs_key, gs_key, as_key]
+# keys_dictionary = {'C1':False, 'D': False, 'E': False, 'F':False, 'G':False, 'A':False, 'B':False, 'C2':False, 'C#':False, 'D#':False, 'F#':False, 'G#':False, 'A#':False}
+
+keys = [pygame.K_a, pygame.K_w,
+pygame.K_s,
+pygame.K_e,
+pygame.K_d,
+pygame.K_f,
+pygame.K_t,
+pygame.K_g,
+pygame.K_y,
+pygame.K_h,
+pygame.K_u,
+pygame.K_j,
+pygame.K_k]
+
+notes_list = ['C1', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C2']
+sounds = ['c', 'c-', 'd', 'd-', 'e', 'f', 'f-', 'g', 'g-', 'a', 'a-', 'b', 'c']
+keys_dict = {}
+
+for i in range(len(keys)):
+  keys_dict[keys[i]] = {
+    'rect': keys_rects[i],
+    'note': notes_list[i],
+    'pressed': False,
+    'channel': i,
+    'sound': sounds[i]
+  }
+
 
 def get_random_key():
   x_list = [4, 104, 204, 304, 404, 504, 604, 704]
@@ -62,8 +89,7 @@ lose_img = pygame.transform.scale(lose_img,(screen_width, screen_height))
 
 
 
-def play_note(note_name, channel_number, note_file, lives, key_colors):
-  key_colors[f'{note_name}'] = True
+def play_note(note_name, channel_number, note_file, lives):
 
   pygame.mixer.Channel(channel_number).play(pygame.mixer.Sound(f'{note_file}'))
   if note_name == good_note:
@@ -112,14 +138,23 @@ while playing_notes:
       pygame.time.delay(100)
       y += velocity
       pygame.draw.rect(screen, (r, g, b), (x, y, width, height))
-      pygame.display.flip()
+      
 
-      for key, value in key_colors.items():
-        if value
-          pygame.draw.rect(screen, (255,255,255), i)
+
+      j = -1
+      for key, value in keys_dict.items():
+        j += 1
+        if value['pressed'] == True:
+          down_key = value['rect']
+          pygame.draw.rect(screen, (128,128,128), down_key)
+          
         else:
-          pygame.draw.rect(screen, (0,0,0), i)
-      pygame.display.flip()
+          rectangle = value['rect']
+          if rectangle != cs_key and rectangle != ds_key and rectangle != fs_key and rectangle != gs_key and rectangle != as_key:
+            pygame.draw.rect(screen, (255,255,255), rectangle)
+          else:
+            pygame.draw.rect(screen, (0,0,0), rectangle)
+        pygame.display.flip()
 
       if x == 4:
         good_note = 'C1'
@@ -166,45 +201,18 @@ while playing_notes:
               octave = octave + 1
               print(f"Now in octave {octave}")
               
-          if event.key == pygame.K_a:
-            hit, lives = play_note("C1", 0, f'./Octave {octave} Notes/c{octave}.mp3', lives, key_colors)
+          if event.key in keys_dict:
+            keys_dict[event.key]['pressed'] = True
+            if event.key == pygame.K_k:
+              high_c = octave + 1
+              hit, lives = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', lives)
+            else:
+              hit, lives = play_note(keys_dict[event.key]['note'],keys_dict[event.key]['channel'],f'./Octave {octave} Notes/{keys_dict[event.key]['sound']}.mp3',lives)
+        if event.type == pygame.KEYUP:
+          if event.key in keys_dict:
+            keys_dict[event.key]['pressed'] = False
 
-          if event.key == pygame.K_w:
-            hit, lives = play_note("C#", 1, f'./Octave {octave} Notes/c-{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_s:
-            hit, lives = play_note("D", 2, f'./Octave {octave} Notes/d{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_e:
-            hit, lives = play_note("D#", 3, f'./Octave {octave} Notes/d-{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_d:
-            hit, lives = play_note("E", 4, f'./Octave {octave} Notes/e{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_f:
-            hit, lives = play_note("F", 5, f'./Octave {octave} Notes/f{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_t:
-            hit, lives = play_note("F#", 6, f'./Octave {octave} Notes/f-{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_g:
-            hit, lives = play_note("G", 7, f'./Octave {octave} Notes/g{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_y:
-            hit, lives = play_note("G#", 8, f'./Octave {octave} Notes/g-{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_h:
-            hit, lives = play_note("A", 9, f'./Octave {octave} Notes/a{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_u:
-            hit, lives = play_note("A#", 10, f'./Octave {octave} Notes/a-{octave}.mp3', lives, key_colors)
-          
-          if event.key == pygame.K_j:
-            hit, lives = play_note("B", 12, f'./Octave {octave} Notes/b{octave}.mp3', lives, key_colors)
-            
-          if event.key == pygame.K_k:
-            high_c = octave + 1
-            hit, lives = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', lives, key_colors)
+
       if hit:
         score += 1
         tiles_fallen += 1

@@ -207,7 +207,8 @@ while playing_notes:
               high_c = octave + 1
               hit, lives = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', lives)
             else:
-              hit, lives = play_note(keys_dict[event.key]['note'],keys_dict[event.key]['channel'],f'./Octave {octave} Notes/{keys_dict[event.key]['sound']}.mp3',lives)
+              sound_file = keys_dict[event.key]['sound']
+              hit, lives = play_note(keys_dict[event.key]['note'],keys_dict[event.key]['channel'],f'./Octave {octave} Notes/{sound_file}.mp3',lives)
         if event.type == pygame.KEYUP:
           if event.key in keys_dict:
             keys_dict[event.key]['pressed'] = False

@@ -12,22 +12,22 @@ mixer.music.set_volume(1)
 pygame.mixer.set_num_channels(13)
 octave = 4
 playing_notes = True
-c1_key = pygame.Rect(4, 600, 96, 300)
-d_key = pygame.Rect(104, 600, 96, 300)
-e_key = pygame.Rect(204, 600, 96, 300)
-f_key = pygame.Rect(304, 600, 96, 300)
-g_key = pygame.Rect(404, 600, 96, 300)
-a_key = pygame.Rect(504, 600, 96, 300)
-b_key = pygame.Rect(604, 600, 96, 300)
-c2_key = pygame.Rect(704, 600, 96, 300)
+c1_key = pygame.Rect(8, 600, 88, 300)
+d_key = pygame.Rect(108, 600, 88, 300)
+e_key = pygame.Rect(208, 600, 88, 300)
+f_key = pygame.Rect(308, 600, 88, 300)
+g_key = pygame.Rect(408, 600, 88, 300)
+a_key = pygame.Rect(508, 600, 88, 300)
+b_key = pygame.Rect(608, 600, 88, 300)
+c2_key = pygame.Rect(708, 600, 88, 300)
 cs_key = pygame.Rect(70, 600, 70, 150)
 ds_key = pygame.Rect(170, 600, 70, 150)
 fs_key = pygame.Rect(370, 600, 70, 150)
 gs_key = pygame.Rect(470, 600, 70, 150)
 as_key = pygame.Rect(570, 600, 70, 150)
-keys_rects = [c1_key, d_key, e_key, f_key, g_key, a_key, b_key, c2_key, cs_key, ds_key, fs_key, gs_key, as_key]
+keys_rects = [c1_key, cs_key, d_key, ds_key, e_key, f_key, fs_key, g_key, gs_key, a_key, as_key, b_key, c2_key]
 # keys_dictionary = {'C1':False, 'D': False, 'E': False, 'F':False, 'G':False, 'A':False, 'B':False, 'C2':False, 'C#':False, 'D#':False, 'F#':False, 'G#':False, 'A#':False}
-
+mistake = 0
 keys = [pygame.K_a, pygame.K_w,
 pygame.K_s,
 pygame.K_e,
@@ -39,36 +39,31 @@ pygame.K_y,
 pygame.K_h,
 pygame.K_u,
 pygame.K_j,
-pygame.K_k]
+pygame.K_k,
+]
 
 notes_list = ['C1', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C2']
 sounds = ['c', 'c-', 'd', 'd-', 'e', 'f', 'f-', 'g', 'g-', 'a', 'a-', 'b', 'c']
 keys_dict = {}
 
 for i in range(len(keys)):
-  keys_dict[keys[i]] = {
-    'rect': keys_rects[i],
-    'note': notes_list[i],
-    'pressed': False,
-    'channel': i,
-    'sound': sounds[i]
-  }
+  keys_dict[keys[i]] = {'rect': keys_rects[i],'note': notes_list[i],'pressed': False,'channel': i,'sound': sounds[i]}
 
 
 def get_random_key():
-  x_list = [4, 104, 204, 304, 404, 504, 604, 704]
+  x_list = [8, 108, 208, 308, 408, 508, 608, 708]
   x_sharp_list = [70, 170, 370, 470, 570]
   which_list = random.randint(1,2)
   if which_list == 2:
     x = random.choice(x_sharp_list)
-    width = 70
+    width = 35
     height = 200
     r = 6
     g = 22
     b = 43
   else:
     x = random.choice(x_list)
-    width = 96
+    width = 88
     height = 200
     r = 226
     g = 218
@@ -89,19 +84,19 @@ lose_img = pygame.transform.scale(lose_img,(screen_width, screen_height))
 
 
 
-def play_note(note_name, channel_number, note_file, lives):
+def play_note(note_name, channel_number, note_file, mistake):
 
   pygame.mixer.Channel(channel_number).play(pygame.mixer.Sound(f'{note_file}'))
   if note_name == good_note:
     print("Good Note Hit")
     hit = True
-    return hit, lives
+    return hit, mistake
   elif note_name != good_note:
     print("Wrong note!")
-    lives = lives - 1
-    print("Lost a life. Lives are now ", lives)
+    mistake += 1
+    print(f"Mistake. Now at {mistake} mistake(s)")
     hit = False
-    return hit, lives
+    return hit, mistake
   
 
 key_is_falling = True
@@ -110,7 +105,6 @@ hit = False
 while playing_notes:
 
   while key_is_falling:
-
     if score == 101131111 or lives ==-1111111141110:
       if score == 10:
         game_verdict = 'win'
@@ -120,7 +114,7 @@ while playing_notes:
       playing_notes = False
 
 
-    if (tiles_fallen % 8) == 0 and tiles_fallen != 0:
+    if (tiles_fallen % 5) == 0 and tiles_fallen != 0:
       velocity_increase += 1.5
       velocity += velocity_increase
       tiles_fallen += 1
@@ -154,7 +148,7 @@ while playing_notes:
             pygame.draw.rect(screen, (255,255,255), rectangle)
           else:
             pygame.draw.rect(screen, (0,0,0), rectangle)
-        pygame.display.flip()
+      pygame.display.flip()
 
       if x == 4:
         good_note = 'C1'
@@ -188,31 +182,42 @@ while playing_notes:
           pygame.quit()
           sys.exit()
         if event.type == pygame.KEYDOWN:
-          if event.key == pygame.K_z:
-            if octave == 3:
-              print("The piano doesn't have any lower keys!")
-            else:
-              octave = octave - 1
-              print(f"Now in octave {octave}")
-          if event.key == pygame.K_x:
-            if octave == 5:
-              print("The piano doesn't have any higher keys!")
-            else:
-              octave = octave + 1
-              print(f"Now in octave {octave}")
-              
-          if event.key in keys_dict:
+
+
+          if event.key == pygame.K_LSHIFT:
+            octave = 5
+            print(octave, 'octave')
+
+
+          elif event.key == pygame.K_LCTRL:
+            octave = 3
+
+            print(octave, 'octave')
+
+          elif event.key in keys_dict:
             keys_dict[event.key]['pressed'] = True
             if event.key == pygame.K_k:
               high_c = octave + 1
-              hit, lives = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', lives)
+              hit, mistake = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', mistake)
+            
             else:
+      
               sound_file = keys_dict[event.key]['sound']
-              hit, lives = play_note(keys_dict[event.key]['note'],keys_dict[event.key]['channel'],f'./Octave {octave} Notes/{sound_file}.mp3',lives)
+              hit, mistake = play_note(keys_dict[event.key]['note'], keys_dict[event.key]['channel'], f'./Octave {octave} Notes/{sound_file}{octave}.mp3',mistake)
         if event.type == pygame.KEYUP:
+          if event.key == pygame.K_LCTRL or event.key == pygame.K_LSHIFT:
+            octave = 4
+
           if event.key in keys_dict:
             keys_dict[event.key]['pressed'] = False
+          
+          
 
+      if mistake == 3:
+          print("3 mistakes. Lost a life.")
+          lives -= 1
+          print("Lives are now", lives)
+          mistake = 0
 
       if hit:
         score += 1

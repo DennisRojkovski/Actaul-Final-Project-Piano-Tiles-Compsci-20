@@ -122,61 +122,27 @@ def play_note(note_name, channel_number, note_file, mistake, good_note):
 
 def play_preset_song(song_notes):
 
+  print("playing preset song")
+  for note in song_notes:
+    print("For note in notes loop")
 
 
+    x = note
+    width = 100
+    height = 100
+    y = 200
+    octave = 4
+    playing_notes = True
+    key_is_falling = True
 
+    while playing_notes:
+      while key_is_falling:
 
-
-
-
-
-
-
-
-
-
-  x, width, height, r, g, b = get_random_key()
-  y = 200
-  score = 0
-  velocity = 10
-  tiles_fallen = 0
-  velocity_increase = 0
-  lives = 5
-  octave = 4
-  playing_notes = True
-  key_is_falling = True
-  hit = False
-  mistake = 0
-  while playing_notes:
-    while key_is_falling:
-      if score == 10 or lives == 0:
-        if score == 10:
-          game_verdict = 'win'
-        elif lives == 0:
-          game_verdict = 'lose'
-        key_is_falling = False
-        playing_notes = False
-
-
-      if (tiles_fallen % 5) == 0 and tiles_fallen != 0:
-        velocity_increase += 1.5
-        velocity += velocity_increase
-        tiles_fallen += 1
-
-      if y >= 400:
-        print("Failed Note Hit")
-        lives = lives - 1
-        velocity = 10
-        print("New lives:", lives)
-        x, width, height, r, g, b = get_random_key()
-        y = 100
-      else:
 
         screen.fill((189, 151, 30))
         pygame.time.delay(100)
-        y += velocity
-        pygame.draw.rect(screen, (r, g, b), (x, y, width, height))
-        
+        pygame.draw.rect(screen, (0,0,0), (x, y, width, height))
+          
 
 
         j = -1
@@ -221,132 +187,49 @@ def play_preset_song(song_notes):
         elif x == 570:
           good_note = 'A#'  
 
-        for event in pygame.event.get():
-          if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-          if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LSHIFT:
-              octave = 5
-              print(octave, 'octave')
-            elif event.key == pygame.K_LCTRL:
-              octave = 3
-              print(octave, 'octave')
-            elif event.key in keys_dict:
-              keys_dict[event.key]['pressed'] = True
-              if event.key == pygame.K_k:
-                high_c = octave + 1
-                hit, mistake = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', mistake, good_note)
-              else:
-                sound_file = keys_dict[event.key]['sound']
-                hit, mistake = play_note(keys_dict[event.key]['note'], keys_dict[event.key]['channel'], f'./Octave {octave} Notes/{sound_file}{octave}.mp3',mistake, good_note)
-          if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LCTRL or event.key == pygame.K_LSHIFT:
-              octave = 4
-            if event.key in keys_dict:
-              keys_dict[event.key]['pressed'] = False
-        if mistake == 3:
-            print("3 mistakes. Lost a life.")
-            lives -= 1
-            print("Lives are now", lives)
-            mistake = 0
-
-        if hit:
-          score += 1
-          tiles_fallen += 1
-          print(score, 'score')
-          print("next key...")
-          x, width, height, r, g, b = get_random_key()
-          y = 100
-          hit = False
-    if game_verdict == 'lose':
-      screen.blit(lose_img, (0, 0))
-      pygame.display.flip()
-    elif game_verdict == 'win':
-      screen.blit(win_img, (0, 0))
-      pygame.display.flip()
-    play_again_loop = True
-
-    while play_again_loop:
-      play_again = input("Do you want to play again? ('y' or 'n'): ")
-      if play_again == 'y':
-        play_again_loop = False
-        playing_notes = False
-      elif play_again == 'n':
-        print("Goodbye!")
-        play_again_loop = False
-        playing_notes = False
-        return False
-      else:
-        print("Invalid answer")
+          for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+              pygame.quit()
+              sys.exit()
+            if event.type == pygame.KEYDOWN:
+              if event.key == pygame.K_LSHIFT:
+                octave = 5
+                print(octave, 'octave')
+              elif event.key == pygame.K_LCTRL:
+                octave = 3
+                print(octave, 'octave')
+              elif event.key in keys_dict:
+                keys_dict[event.key]['pressed'] = True
+                if event.key == pygame.K_k:
+                  high_c = octave + 1
+                  hit, mistake = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', mistake, good_note)
+                else:
+                  sound_file = keys_dict[event.key]['sound']
+                  hit, mistake = play_note(keys_dict[event.key]['note'], keys_dict[event.key]['channel'], f'./Octave {octave} Notes/{sound_file}{octave}.mp3',mistake, good_note)
+            if event.type == pygame.KEYUP:
+              if event.key == pygame.K_LCTRL or event.key == pygame.K_LSHIFT:
+                octave = 4
+              if event.key in keys_dict:
+                keys_dict[event.key]['pressed'] = False
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  # print("play preswet song")
-  # velocity = 10
-  # key_is_falling = True
-  # while key_is_falling:
-
-  #   screen.fill((189, 151, 30))
-  #   for note in song_notes:
-  #     pygame.time.delay(100)
-  #     y += velocity
-  #     pygame.draw.rect(screen, (r, g, b), (x, y, width, height))
-
-
-
-
-
-
-
-def make_preset_song(song, keys_rects):
+def make_preset_song(song):
 
 
   if song == 'mii_channel':
     song_notes = [
-      keys_rects[6],
-      keys_rects[9],
-      keys_rects[1],
-      keys_rects[9],
-      keys_rects[6],
-      keys_rects[2],
-      keys_rects[2],
-      keys_rects[2]
+      370,
+      508,
+      70,
+      508,
+      370,
+      108,
+      108,
+      108
     ]
   play_preset_song(song_notes)
 
@@ -356,7 +239,7 @@ def choose_preset_song(keys_rects):
   print("\n\n----------\nYour song options are:\n1. Mii Channel Theme\n")
   play_what_song = get_valid_num("Which song do you wish to play? Type the number beside the song.: ", 1)
   if play_what_song == 1:
-    make_preset_song('mii_channel', keys_rects)
+    make_preset_song('mii_channel')
 
 
 

@@ -65,7 +65,7 @@ def play_game(playing):
         print("sdgfsdgsdg")
         playing = play_song('endless')
       elif which_mode == 2:
-        choose_preset_song()
+        playing = choose_preset_song()
 
 
 
@@ -134,9 +134,15 @@ def make_preset_song(song):
       370,
       108,
       108,
-      108
+      108,
+      8,
+      108,
+      370,
+      508,
+      708,
+      508,
     ]
-  play_song('song', song_notes, note_speed = 20)
+    playing = play_song('song', song_notes, note_speed = 10)
 
 
 
@@ -144,7 +150,7 @@ def choose_preset_song():
   print("\n\n----------\nYour song options are:\n1. Mii Channel Theme\n")
   play_what_song = get_valid_num("Which song do you wish to play? Type the number beside the song.: ", 1)
   if play_what_song == 1:
-    make_preset_song('mii_channel')
+    playing = make_preset_song('mii_channel')
 
 
 
@@ -162,7 +168,7 @@ def play_song(mode, song_notes = '', note_speed = 0):
     tiles_fallen = 0
     velocity_increase = 0
     lives = 5
-    hit = False
+  hit = False
   mistake = 0
   y = 200
   note_count = 0

@@ -58,14 +58,14 @@ def get_valid_num(question, range):
 
 
 playing = True
-def play_game(playing, keys_rects):
+def play_game(playing):
   while playing:
       which_mode = get_valid_num("Do you wish to play endless mode or learn a new song? type '1' for endless, '2' for new song.", 2)
       if which_mode == 1:
         print("sdgfsdgsdg")
-        playing = play_endless()
+        playing = play_song('endless')
       elif which_mode == 2:
-        choose_preset_song(keys_rects)
+        choose_preset_song()
 
 
 
@@ -102,6 +102,8 @@ win_img = pygame.image.load("win_screen.png")
 win_img = pygame.transform.scale(win_img,(screen_width, screen_height))
 lose_img = pygame.image.load("lose_screen.png")
 lose_img = pygame.transform.scale(lose_img,(screen_width, screen_height))
+learn_img = pygame.image.load("learn.png")
+learn_img = pygame.transform.scale(learn_img,(screen_width, screen_height))
 
 
 
@@ -120,103 +122,6 @@ def play_note(note_name, channel_number, note_file, mistake, good_note):
     return hit, mistake
 
 
-def play_preset_song(song_notes):
-
-  print("playing preset song")
-  for note in song_notes:
-    print("For note in notes loop")
-
-
-    x = note
-    width = 100
-    height = 100
-    y = 200
-    octave = 4
-    playing_notes = True
-    key_is_falling = True
-
-    while playing_notes:
-      while key_is_falling:
-
-
-        screen.fill((189, 151, 30))
-        pygame.time.delay(100)
-        pygame.draw.rect(screen, (0,0,0), (x, y, width, height))
-          
-
-
-        j = -1
-        for key, value in keys_dict.items():
-          j += 1
-          if value['pressed'] == True:
-            down_key = value['rect']
-            pygame.draw.rect(screen, (128,128,128), down_key)
-            
-          else:
-            rectangle = value['rect']
-            if rectangle != cs_key and rectangle != ds_key and rectangle != fs_key and rectangle != gs_key and rectangle != as_key:
-              pygame.draw.rect(screen, (255,255,255), rectangle)
-            else:
-              pygame.draw.rect(screen, (0,0,0), rectangle)
-        pygame.display.flip()
-
-        if x == 8:
-          good_note = 'C1'
-        elif x == 108:
-          good_note = 'D'
-        elif x == 208:
-          good_note = 'E'
-        elif x == 308:
-          good_note = 'F'
-        elif x == 408:
-          good_note = 'G'
-        elif x == 508:
-          good_note = 'A'
-        elif x == 608:
-          good_note = 'B'
-        elif x == 708:
-          good_note = 'C2'
-        elif x == 70:
-          good_note = 'C#'
-        elif x == 170:
-          good_note = 'D#'
-        elif x == 370:
-          good_note = 'F#'
-        elif x == 470:
-          good_note = 'G#'
-        elif x == 570:
-          good_note = 'A#'  
-
-          for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-              pygame.quit()
-              sys.exit()
-            if event.type == pygame.KEYDOWN:
-              if event.key == pygame.K_LSHIFT:
-                octave = 5
-                print(octave, 'octave')
-              elif event.key == pygame.K_LCTRL:
-                octave = 3
-                print(octave, 'octave')
-              elif event.key in keys_dict:
-                keys_dict[event.key]['pressed'] = True
-                if event.key == pygame.K_k:
-                  high_c = octave + 1
-                  hit, mistake = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', mistake, good_note)
-                else:
-                  sound_file = keys_dict[event.key]['sound']
-                  hit, mistake = play_note(keys_dict[event.key]['note'], keys_dict[event.key]['channel'], f'./Octave {octave} Notes/{sound_file}{octave}.mp3',mistake, good_note)
-            if event.type == pygame.KEYUP:
-              if event.key == pygame.K_LCTRL or event.key == pygame.K_LSHIFT:
-                octave = 4
-              if event.key in keys_dict:
-                keys_dict[event.key]['pressed'] = False
-
-
-
-
-
-
 def make_preset_song(song):
 
 
@@ -231,11 +136,11 @@ def make_preset_song(song):
       108,
       108
     ]
-  play_preset_song(song_notes)
+  play_song('song', song_notes, note_speed = 20)
 
 
 
-def choose_preset_song(keys_rects):
+def choose_preset_song():
   print("\n\n----------\nYour song options are:\n1. Mii Channel Theme\n")
   play_what_song = get_valid_num("Which song do you wish to play? Type the number beside the song.: ", 1)
   if play_what_song == 1:
@@ -250,151 +155,188 @@ def choose_preset_song(keys_rects):
 
 
 
-def play_endless():
-  x, width, height, r, g, b = get_random_key()
+def play_song(mode, song_notes = '', note_speed = 0):
+  if mode == 'endless':
+    x, width, height, r, g, b = get_random_key()
+    score = 0
+    tiles_fallen = 0
+    velocity_increase = 0
+    lives = 5
+    hit = False
+  mistake = 0
   y = 200
+  note_count = 0
   score = 0
   velocity = 10
-  tiles_fallen = 0
-  velocity_increase = 0
-  lives = 5
   octave = 4
   playing_notes = True
   key_is_falling = True
-  hit = False
-  mistake = 0
+
   while playing_notes:
+    print("added note count")
     while key_is_falling:
-      if score == 10 or lives == 0:
-        if score == 10:
-          game_verdict = 'win'
-        elif lives == 0:
-          game_verdict = 'lose'
-        key_is_falling = False
-        playing_notes = False
+      if mode == 'endless':
+        if score == 10 or lives == 0:
+          if score == 10:
+            game_verdict = 'win'
+          elif lives == 0:
+            game_verdict = 'lose'
+          key_is_falling = False
+          playing_notes = False
 
 
-      if (tiles_fallen % 5) == 0 and tiles_fallen != 0:
-        velocity_increase += 1.5
-        velocity += velocity_increase
-        tiles_fallen += 1
+        if (tiles_fallen % 5) == 0 and tiles_fallen != 0:
+          velocity_increase += 1.5
+          velocity += velocity_increase
+          tiles_fallen += 1
 
-      if y >= 400:
-        print("Failed Note Hit")
-        lives = lives - 1
-        velocity = 10
-        print("New lives:", lives)
-        x, width, height, r, g, b = get_random_key()
-        y = 100
+        if y >= 400:
+          print("Failed Note Hit")
+          lives = lives - 1
+          velocity = 10
+          print("New lives:", lives)
+          x, width, height, r, g, b = get_random_key()
+          y = 100
+        else:
+          screen.fill((189, 151, 30))
+          pygame.time.delay(100)
+          y += velocity
+          pygame.draw.rect(screen, (r, g, b), (x, y, width, height))
+
       else:
-
-        screen.fill((189, 151, 30))
-        pygame.time.delay(100)
-        y += velocity
-        pygame.draw.rect(screen, (r, g, b), (x, y, width, height))
+        if y >= 430:
+          y = 100
+          print("Failed Note Hit")
+          note_count += 1
+        if note_count > (len(song_notes) - 1):
+          print("Song ended.")
+          key_is_falling = False
+          playing_notes = False
+        else:
+          x = song_notes[note_count]
+          screen.fill((189, 151, 30))
+          pygame.time.delay(100)
+          y += note_speed
+          pygame.draw.rect(screen, (255,255,255), (x, y, 60, 140))
+      
         
 
 
-        j = -1
-        for key, value in keys_dict.items():
-          j += 1
-          if value['pressed'] == True:
-            down_key = value['rect']
-            pygame.draw.rect(screen, (128,128,128), down_key)
-            
+      j = -1
+      for key, value in keys_dict.items():
+        j += 1
+        if value['pressed'] == True:
+          down_key = value['rect']
+          pygame.draw.rect(screen, (128,128,128), down_key)
+          
+        else:
+          rectangle = value['rect']
+          if rectangle != cs_key and rectangle != ds_key and rectangle != fs_key and rectangle != gs_key and rectangle != as_key:
+            pygame.draw.rect(screen, (255,255,255), rectangle)
           else:
-            rectangle = value['rect']
-            if rectangle != cs_key and rectangle != ds_key and rectangle != fs_key and rectangle != gs_key and rectangle != as_key:
-              pygame.draw.rect(screen, (255,255,255), rectangle)
+            pygame.draw.rect(screen, (0,0,0), rectangle)
+      pygame.display.flip()
+
+      if x == 8:
+        good_note = 'C1'
+      elif x == 108:
+        good_note = 'D'
+      elif x == 208:
+        good_note = 'E'
+      elif x == 308:
+        good_note = 'F'
+      elif x == 408:
+        good_note = 'G'
+      elif x == 508:
+        good_note = 'A'
+      elif x == 608:
+        good_note = 'B'
+      elif x == 708:
+        good_note = 'C2'
+      elif x == 70:
+        good_note = 'C#'
+      elif x == 170:
+        good_note = 'D#'
+      elif x == 370:
+        good_note = 'F#'
+      elif x == 470:
+        good_note = 'G#'
+      elif x == 570:
+        good_note = 'A#'  
+
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+          pygame.quit()
+          sys.exit()
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_LSHIFT:
+            octave = 5
+            print(octave, 'octave')
+          elif event.key == pygame.K_LCTRL:
+            octave = 3
+            print(octave, 'octave')
+          elif event.key in keys_dict:
+            keys_dict[event.key]['pressed'] = True
+            if event.key == pygame.K_k:
+              high_c = octave + 1
+              hit, mistake = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', mistake, good_note)
             else:
-              pygame.draw.rect(screen, (0,0,0), rectangle)
-        pygame.display.flip()
+              sound_file = keys_dict[event.key]['sound']
+              hit, mistake = play_note(keys_dict[event.key]['note'], keys_dict[event.key]['channel'], f'./Octave {octave} Notes/{sound_file}{octave}.mp3',mistake, good_note)
+        if event.type == pygame.KEYUP:
+          if event.key == pygame.K_LCTRL or event.key == pygame.K_LSHIFT:
+            octave = 4
+          if event.key in keys_dict:
+            keys_dict[event.key]['pressed'] = False
 
-        if x == 8:
-          good_note = 'C1'
-        elif x == 108:
-          good_note = 'D'
-        elif x == 208:
-          good_note = 'E'
-        elif x == 308:
-          good_note = 'F'
-        elif x == 408:
-          good_note = 'G'
-        elif x == 508:
-          good_note = 'A'
-        elif x == 608:
-          good_note = 'B'
-        elif x == 708:
-          good_note = 'C2'
-        elif x == 70:
-          good_note = 'C#'
-        elif x == 170:
-          good_note = 'D#'
-        elif x == 370:
-          good_note = 'F#'
-        elif x == 470:
-          good_note = 'G#'
-        elif x == 570:
-          good_note = 'A#'  
 
-        for event in pygame.event.get():
-          if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-          if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LSHIFT:
-              octave = 5
-              print(octave, 'octave')
-            elif event.key == pygame.K_LCTRL:
-              octave = 3
-              print(octave, 'octave')
-            elif event.key in keys_dict:
-              keys_dict[event.key]['pressed'] = True
-              if event.key == pygame.K_k:
-                high_c = octave + 1
-                hit, mistake = play_note("C2", 12, f'./Octave {octave} Notes/c{high_c}.mp3', mistake, good_note)
-              else:
-                sound_file = keys_dict[event.key]['sound']
-                hit, mistake = play_note(keys_dict[event.key]['note'], keys_dict[event.key]['channel'], f'./Octave {octave} Notes/{sound_file}{octave}.mp3',mistake, good_note)
-          if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LCTRL or event.key == pygame.K_LSHIFT:
-              octave = 4
-            if event.key in keys_dict:
-              keys_dict[event.key]['pressed'] = False
+
+      if hit:
+          if mode == 'endless':
+            score += 1
+            tiles_fallen += 1
+            print(score, 'score')
+            print("next key...")
+            x, width, height, r, g, b = get_random_key()
+            y = 100
+          else:
+            y = 100
+            note_count += 1
+
+          hit = False
+      if mode == 'endless':
         if mistake == 3:
             print("3 mistakes. Lost a life.")
             lives -= 1
             print("Lives are now", lives)
             mistake = 0
 
-        if hit:
-          score += 1
-          tiles_fallen += 1
-          print(score, 'score')
-          print("next key...")
-          x, width, height, r, g, b = get_random_key()
-          y = 100
-          hit = False
-    if game_verdict == 'lose':
-      screen.blit(lose_img, (0, 0))
+      
+    if mode == 'endless':
+      if game_verdict == 'lose':
+        screen.blit(lose_img, (0, 0))
+        pygame.display.flip()
+      elif game_verdict == 'win':
+        screen.blit(win_img, (0, 0))
+        pygame.display.flip()
+      play_again_loop = True
+    else:
+      screen.blit(learn_img, (0, 0))
       pygame.display.flip()
-    elif game_verdict == 'win':
-      screen.blit(win_img, (0, 0))
-      pygame.display.flip()
-    play_again_loop = True
+      play_again_loop = True
 
-    while play_again_loop:
-      play_again = input("Do you want to play again? ('y' or 'n'): ")
-      if play_again == 'y':
-        play_again_loop = False
-        playing_notes = False
-      elif play_again == 'n':
-        print("Goodbye!")
-        play_again_loop = False
-        playing_notes = False
-        return False
-      else:
-        print("Invalid answer")
+  while play_again_loop:
+    play_again = input("Do you want to play again? ('y' or 'n'): ")
+    if play_again == 'y':
+      play_again_loop = False
+      playing_notes = False
+    elif play_again == 'n':
+      print("Goodbye!")
+      play_again_loop = False
+      playing_notes = False
+      return False
+    else:
+      print("Invalid answer")
 
-play_game(playing, keys_rects)
+play_game(playing)
 print("All loops ended")

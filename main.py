@@ -9,6 +9,7 @@ screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 mixer.music.set_volume(1)
 pygame.mixer.set_num_channels(13)
+font = pygame.font.SysFont('timesnewroman',  30)
 c1_key = pygame.Rect(8, 600, 88, 300)
 d_key = pygame.Rect(108, 600, 88, 300)
 e_key = pygame.Rect(208, 600, 88, 300)
@@ -62,7 +63,6 @@ def play_game(playing):
   while playing:
       which_mode = get_valid_num("Do you wish to play endless mode or learn a new song? type '1' for endless, '2' for new song.", 2)
       if which_mode == 1:
-        print("sdgfsdgsdg")
         playing = play_song('endless')
       elif which_mode == 2:
         playing = choose_preset_song()
@@ -105,6 +105,21 @@ lose_img = pygame.transform.scale(lose_img,(screen_width, screen_height))
 learn_img = pygame.image.load("learn.png")
 learn_img = pygame.transform.scale(learn_img,(screen_width, screen_height))
 
+white=(255, 255, 255)
+yellow=(255, 255, 0)
+green=(0, 255, 255)
+orange=(255, 100, 0)
+
+letter_1 = font.render("A", False, orange, yellow)
+letter_2 = font.render("S", False, orange, green)
+letter_3 = font.render("D", False, orange, yellow)
+letter_4 = font.render("F", False, orange, green)
+letter_5 = font.render("G", False, orange, yellow)
+letter_6 = font.render("H", False, orange, green)
+letter_7 = font.render("J", False, orange, yellow)
+letter_8 = font.render("K", False, orange, yellow)
+key_names = [letter_1, letter_2, letter_3, letter_4, letter_5, letter_6, letter_7, letter_8]
+
 
 
 def play_note(note_name, channel_number, note_file, mistake, good_note):
@@ -126,22 +141,14 @@ def make_preset_song(song):
 
 
   if song == 'mii_channel':
-    song_notes = [
-      370,
-      508,
-      70,
-      508,
-      370,
-      108,
-      108,
-      108,
-      8,
-      108,
-      370,
-      508,
-      708,
-      508,
-    ]
+    song_notes = []
+    mii_song_file = open('mii_song.txt')
+    song_notes = mii_song_file.readlines()
+    song_notes = list(map(str.strip, song_notes))
+    song_notes = song_notes * 2
+    mii_song_file.close()
+    for note in range(len(song_notes)):
+      song_notes[note] = int(song_notes[note])
     playing = play_song('song', song_notes, note_speed = 10)
 
 
@@ -179,7 +186,6 @@ def play_song(mode, song_notes = '', note_speed = 0):
   key_is_falling = True
 
   while playing_notes:
-    print("added note count")
     while key_is_falling:
       if mode == 'endless':
         if score == 10 or lives == 0:
@@ -241,6 +247,11 @@ def play_song(mode, song_notes = '', note_speed = 0):
             pygame.draw.rect(screen, (255,255,255), rectangle)
           else:
             pygame.draw.rect(screen, (0,0,0), rectangle)
+        key_location = 50
+        for key_name in key_names:
+          
+          screen.blit(key_name, (key_location, 750))
+          key_location += 80
       pygame.display.flip()
 
       if x == 8:

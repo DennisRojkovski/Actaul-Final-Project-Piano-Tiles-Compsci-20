@@ -32,8 +32,6 @@ keys_dict = {}
 for i in range(len(keys)):
   keys_dict[keys[i]] = {'rect': keys_rects[i],'note': notes_list[i],'pressed': False,'channel': i,'sound': sounds[i]}
 
-with open("highscore.txt", 'r+') as highscore_file:
-  highscore = highscore_file.read()
 
 def get_valid_num(question, range):
   asking = True
@@ -58,7 +56,7 @@ def get_valid_num(question, range):
 playing = True
 def play_game(playing):
   while playing:
-      which_mode = get_valid_num("Do you wish to play random mode or learn a new song? type '1' for random, '2' for new song or 3 to quit: ", 3)
+      which_mode = get_valid_num("Do you wish to play endless mode or learn a new song? type '1' for endless, '2' for new song.", 2)
       if which_mode == 1:
         chosen_lives = get_valid_num("How many lives do you wish to have? (min 1, max 10): ", 10)
         chosen_max = get_valid_num("What score do you wish to be the winning score? (10 is a little, 50 is a good amount, 100+ is insane): ", None)
@@ -95,26 +93,10 @@ lose_img = pygame.transform.scale(lose_img,(screen_width, screen_height))
 learn_img = pygame.image.load("learn.png")
 learn_img = pygame.transform.scale(learn_img,(screen_width, screen_height))
 
-black = (0,0,0)
-white = (255, 255, 255)
-
-letter_1 = keys_font.render("A", False, black, white)
-letter_2 = keys_font.render("S", False, black, white)
-letter_3 = keys_font.render("D", False, black, white)
-letter_4 = keys_font.render("F", False, black, white)
-letter_5 = keys_font.render("G", False, black, white)
-letter_6 = keys_font.render("H", False, black, white)
-letter_7 = keys_font.render("J", False, black, white)
-letter_8 = keys_font.render("K", False, black, white)
-letter_9 = keys_font.render("W", False, white, black)
-letter_10 = keys_font.render("E", False, white, black)
-letter_11 = keys_font.render("T", False, white, black)
-letter_12 = keys_font.render("Y", False, white, black)
-letter_13 = keys_font.render("U", False, white, black)
-start_message = message_font.render("Press the right key to begin.", False, black)
-record_message = message_font.render(f"All-time record: {highscore}", False, black)
-
-
+white=(255, 255, 255)
+yellow=(255, 255, 0)
+green=(0, 255, 255)
+orange=(255, 100, 0)
 
 key_names = [letter_1, letter_2, letter_3, letter_4, letter_5, letter_6, letter_7, letter_8]
 sharp_names = [letter_9, letter_10, letter_11, letter_12, letter_13]
@@ -167,9 +149,15 @@ def choose_preset_song():
     playing = make_preset_song('mii_channel')
 
 
-def play_song(mode, song_notes = '', song_message = '', song_octaves = None, note_speed = 0, chosen_lives = 10, chosen_max = None):
-  with open("highscore.txt") as highscore_file:
-    highscore = int(highscore_file.read())
+
+
+
+
+
+
+
+
+def play_song(mode, song_notes = '', note_speed = 0):
   if mode == 'endless':
     x, width, height, r, g, b = get_random_key()
     score = 0
@@ -189,14 +177,6 @@ def play_song(mode, song_notes = '', song_message = '', song_octaves = None, not
   key_is_falling = True
   while playing_notes:
     while key_is_falling:
-      if tiles_fallen == 0:
-        accuracy_percent = '100'
-      else:
-        accuracy_percent = round((((tiles_fallen)/(tiles_fallen + total_mistake)) * 100), 1)
-      record_message = message_font.render(f"All-time record: {highscore}", False, black)
-      mistake_message = message_font.render(f"{mistake} mistake(s)", False, black)
-      score_message = message_font.render(f"score: {score}", False, black)
-      accuracy_message = message_font.render(f"Accuracy: {accuracy_percent}%", False, black)
       if mode == 'endless':
         if lives > 1:
           lives_message = message_font.render(f"{lives} lives", False, black)
@@ -224,14 +204,9 @@ def play_song(mode, song_notes = '', song_message = '', song_octaves = None, not
           x, width, height, r, g, b = get_random_key()
           y = 100
         else:
-          if tiles_fallen == 0:
-            screen.fill((189, 151, 30))
-            screen.blit(start_message, (180,570))
-            y = y
-          else:
-            screen.fill((189, 151, 30))
-            pygame.time.delay(100)
-            y += velocity
+          screen.fill((189, 151, 30))
+          pygame.time.delay(100)
+          y += velocity
           pygame.draw.rect(screen, (r, g, b), (x, y, width, height))
       else:
         if y >= 430:
@@ -245,14 +220,11 @@ def play_song(mode, song_notes = '', song_message = '', song_octaves = None, not
           x = song_notes[note_count]
           screen.fill((189, 151, 30))
           pygame.time.delay(100)
-          if tiles_fallen == 0:
-            screen.blit(start_message, (180,570))
-          else:
-            y += note_speed
-          if x != 70 and x != 170 and x != 370 and x != 470 and x != 570:
-            pygame.draw.rect(screen, (255,255,255), (x, y, 88, 200))
-          else:
-            pygame.draw.rect(screen, (0,0,0), (x, y, 35, 200))
+          y += note_speed
+          pygame.draw.rect(screen, (255,255,255), (x, y, 60, 140))
+      
+        
+
 
       j = -1
       for key, value in keys_dict.items():
@@ -267,30 +239,11 @@ def play_song(mode, song_notes = '', song_message = '', song_octaves = None, not
             pygame.draw.rect(screen, (255,255,255), rectangle)
           else:
             pygame.draw.rect(screen, (0,0,0), rectangle)
-        key_location = 40
-      for key_name in key_names:
-        screen.blit(key_name, (key_location, 760))
-        key_location += 100
-      key_location = 75
-      key_counter = 0
-      for key_name in sharp_names:
-        screen.blit(key_name, (key_location, 700))
-        key_counter += 1
-        if key_counter == 2:
-          key_location += 202
-        else:
-          key_location += 101
-      if mode == 'endless':
-        screen.blit(mistake_message, (20, 35))
-        screen.blit(lives_message, (20, 60))
-        screen.blit(score_message, (300, 50))
-        if score > highscore:
-          highscore = score
-        screen.blit(record_message, (550, 10))
-      else:
-        screen.blit(song_message, (230, 30))
-      screen.blit(accuracy_message, (20, 85))
-        
+        key_location = 50
+        for key_name in key_names:
+          
+          screen.blit(key_name, (key_location, 750))
+          key_location += 80
       pygame.display.flip()
 
       if x == 8:

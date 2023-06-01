@@ -136,25 +136,57 @@ def play_note(note_name, channel_number, note_file, mistake, good_note, total_mi
     return hit, mistake, total_mistake
 
 
+
+'''
+
+Each measure is 400 ticks
+4/4 time
+one eighth note is 50
+ti-ti is 50-50
+one quarter note is 100
+
+
+
+'''
+
+
+
+
+
+
 def make_preset_song(song):
   if song == 'mii_channel':
     song_notes = []
     song_octaves = []
+    note_lengths = []
     with open('mii_song.txt') as mii_song_file:
       song_info = mii_song_file.readlines()
-  j = 0
-  for info in song_info:
-    j += 1
-    if (j % 2) == 1:
-      song_notes.append(info)
-    else:
-      song_octaves.append(info)
+
+  for line_list in song_info:
+    current_line = line_list.split(",")
+    current_line[-1] = current_line[-1].strip()
+    song_notes.append(current_line[0])
+    song_octaves.append(current_line[1])
+    note_lengths.append(current_line[-1])
+
   song_notes = (list(map(str.strip, song_notes))) * 2
   song_octaves = (list(map(str.strip, song_octaves))) * 2
   for note in range(len(song_notes)):
-    song_notes[note] = int(song_notes[note])
+      song_notes[note] = int(song_notes[note])
+
+  song_info_dictionary = {
+      'song_notes': song_notes,
+      'song_octaves': song_octaves,
+      'note_lengths': note_lengths
+    }
+  
   mii_song_message = message_font.render("Mii Channel Theme", False, black)
-  playing = play_song('song', song_notes, mii_song_message, song_octaves, note_speed = 10)
+  playing = play_song('song', song_info_dictionary, mii_song_message, note_speed = 10)
+
+
+
+
+
 
 
 
@@ -165,7 +197,7 @@ def choose_preset_song():
     playing = make_preset_song('mii_channel')
 
 
-def play_song(mode, song_notes = '', song_message = '', song_octaves = None, note_speed = 0, chosen_lives = 10, chosen_max = None):
+def play_song(mode, song_info_dictionary = None, song_message = '', note_speed = 0, chosen_lives = 10, chosen_max = None):
   with open("highscore.txt") as highscore_file:
     highscore = int(highscore_file.read())
   if mode == 'endless':
@@ -173,6 +205,7 @@ def play_song(mode, song_notes = '', song_message = '', song_octaves = None, not
     score = 0
     velocity_increase = 0
     lives = chosen_lives
+    velocity_increase = 1.25
   tiles_fallen = 0
   hit = False
   total_mistake = 0
@@ -211,9 +244,7 @@ def play_song(mode, song_notes = '', song_message = '', song_octaves = None, not
           key_is_falling = False
           playing_notes = False
 
-
         if (tiles_fallen % 5) == 0 and tiles_fallen != 0:
-          velocity_increase += 1.25
           velocity += velocity_increase
           tiles_fallen += 1
 
@@ -233,23 +264,31 @@ def play_song(mode, song_notes = '', song_message = '', song_octaves = None, not
             pygame.time.delay(100)
             y += velocity
           pygame.draw.rect(screen, (r, g, b), (x, y, width, height))
+
+
+
+
+
+
       else:
-        if song_octaves[tiles_fallen] == '2':
-          screen.fill((230, 97, 45))
-        elif song_octaves[tiles_fallen] == '0':
-          screen.fill((80,100,240))
-        else:
-          screen.fill((189, 151, 30))
 
         if y >= 430:
           y = 100
           total_mistake += 1
           note_count += 1
-        if note_count > (len(song_notes) - 1):
+        if note_count > (len(song_info_dictionary['song_notes']) - 1):
           key_is_falling = False
           playing_notes = False
         else:
-          x = song_notes[note_count]
+          if song_info_dictionary['song_octaves'][tiles_fallen] == '2':
+            screen.fill((230, 97, 45))
+          elif song_info_dictionary['song_octaves'][tiles_fallen] == '0':
+            screen.fill((80,100,240))
+          else:
+            screen.fill((189, 151, 30))
+          x = song_info_dictionary['song_notes'][note_count]
+          int(song_info_dictionary['note_lengths'][note_count])
+
           pygame.time.delay(100)
           if tiles_fallen == 0:
             screen.blit(start_message, (180,570))
@@ -259,6 +298,7 @@ def play_song(mode, song_notes = '', song_message = '', song_octaves = None, not
             pygame.draw.rect(screen, (255,255,255), (x, y, 88, 200))
           else:
             pygame.draw.rect(screen, (0,0,0), (x, y, 35, 200))
+            
       j = -1
       for key, value in keys_dict.items():
         j += 1
@@ -289,19 +329,16 @@ def play_song(mode, song_notes = '', song_message = '', song_octaves = None, not
         screen.blit(mistake_message, (20, 35))
         screen.blit(lives_message, (20, 60))
         screen.blit(score_message, (300, 50))
+        screen.blit(record_message, (550, 10))
         if score > highscore:
           highscore = score
-        screen.blit(record_message, (550, 10))
       else:
         screen.blit(song_message, (230, 30))
         screen.blit(help_message_1, (450, 60))
         screen.blit(help_message_2, (450, 80))
-
-
       screen.blit(accuracy_message, (20, 85))
         
       pygame.display.flip()
-
       if x == 8:
         good_note = 'C1'
       elif x == 108:

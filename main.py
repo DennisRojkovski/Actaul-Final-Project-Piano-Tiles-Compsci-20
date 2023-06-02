@@ -184,12 +184,6 @@ def make_preset_song(song):
   playing = play_song('song', song_info_dictionary, mii_song_message, note_speed = 10)
 
 
-
-
-
-
-
-
 def choose_preset_song():
   print("\n\n----------\nYour song options are:\n1. Mii Channel Theme\n")
   play_what_song = get_valid_num("Which song do you wish to play? Type the number beside the song.: ", 1)
@@ -205,7 +199,7 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
     score = 0
     velocity_increase = 0
     lives = chosen_lives
-    velocity_increase = 1.25
+    velocity_increase = 1.5
   tiles_fallen = 0
   hit = False
   total_mistake = 0
@@ -239,7 +233,7 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
             game_verdict = 'win'
             key_is_falling = False
             playing_notes = False
-        elif lives == 0:
+        if lives == 0:
           game_verdict = 'lose'
           key_is_falling = False
           playing_notes = False
@@ -265,11 +259,6 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
             y += velocity
           pygame.draw.rect(screen, (r, g, b), (x, y, width, height))
 
-
-
-
-
-
       else:
 
         if y >= 430:
@@ -287,7 +276,7 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
           else:
             screen.fill((189, 151, 30))
           x = song_info_dictionary['song_notes'][note_count]
-          int(song_info_dictionary['note_lengths'][note_count])
+          # int(song_info_dictionary['note_lengths'][note_count])
 
           pygame.time.delay(100)
           if tiles_fallen == 0:
@@ -312,7 +301,14 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
             pygame.draw.rect(screen, (255,255,255), rectangle)
           else:
             pygame.draw.rect(screen, (0,0,0), rectangle)
-        key_location = 40
+      for note in song_info_dictionary['song_notes']:
+        y = 700
+        if x != 70 and x != 170 and x != 370 and x != 470 and x != 570:
+            pygame.draw.rect(screen, (255,255,255), (note, y, 88, 200))
+        else:
+            pygame.draw.rect(screen, (0,0,0), (note, y, 88, 200))
+        y -= int(song_info_dictionary['note_lengths'][note_count])
+      key_location = 40
       for key_name in key_names:
         screen.blit(key_name, (key_location, 760))
         key_location += 100

@@ -1,18 +1,22 @@
-
+#Import all libraries
 import pygame
 from pygame import mixer
 import sys
 import random
 pygame.init()
 mixer.init()
+#set screen size
 screen_width = 800
 screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
+#Set music channels
 mixer.music.set_volume(1)
 pygame.mixer.set_num_channels(13)
+#Set fonts
 keys_font = pygame.font.SysFont('Verdana',  30)
 message_font = pygame.font.SysFont('Verdana', 20)
 tips_font = pygame.font.SysFont('Verdana', 14)
+#Set different keys as different rectangles on the screen
 c1_key = pygame.Rect(8, 600, 88, 300)
 d_key = pygame.Rect(108, 600, 88, 300)
 e_key = pygame.Rect(208, 600, 88, 300)
@@ -26,20 +30,26 @@ ds_key = pygame.Rect(170, 600, 70, 150)
 fs_key = pygame.Rect(370, 600, 70, 150)
 gs_key = pygame.Rect(470, 600, 70, 150)
 as_key = pygame.Rect(570, 600, 70, 150)
+#Makes a list of all keys
 keys_rects = [c1_key, cs_key, d_key, ds_key, e_key, f_key, fs_key, g_key, gs_key, a_key, as_key, b_key, c2_key]
+#Makes a list of all pygame keydown functions
 keys = [pygame.K_a, pygame.K_w, pygame.K_s, pygame.K_e, pygame.K_d, pygame.K_f, pygame.K_t, pygame.K_g, pygame.K_y, pygame.K_h, pygame.K_u, pygame.K_j, pygame.K_k]
+#Makes list of all note names
 notes_list = ['C1', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C2']
+#Makes list of all sound names
 sounds = ['c', 'c-', 'd', 'd-', 'e', 'f', 'f-', 'g', 'g-', 'a', 'a-', 'b', 'c']
+#Makes a master dictionary that contains every key. Every key has it's own dictionary containing values such as it's current pressed state, the key name, the sound etc.
 keys_dict = {}
 for i in range(len(keys)):
   keys_dict[keys[i]] = {'rect': keys_rects[i],'note': notes_list[i],'pressed': False,'channel': i,'sound': sounds[i]}
-
+#Opens and reads highscore file as the highscore
 with open("highscore.txt", 'r+') as highscore_file:
   highscore = highscore_file.read()
-
+#Function to get a valid number
 def get_valid_num(question, range):
   asking = True
   while asking:
+#Gets valid number by checking if the input is within the proper range, returns the answer if it is valid
     try:
       answer = int(input(question))
       if range != None:
@@ -55,27 +65,32 @@ def get_valid_num(question, range):
     except:
       print("Not an integer answer.")
   return answer
-
-
+#Function to choose game mode
 playing = True
 def play_game(playing):
   while playing:
+#Gets valid number, if 1, starts endless mode. If 2, starts preset song mode.
       which_mode = get_valid_num("Do you wish to play random mode or learn a new song? type '1' for random, '2' for new song or 3 to quit: ", 3)
       if which_mode == 1:
         chosen_lives = get_valid_num("How many lives do you wish to have? (min 1, max 10): ", 10)
         chosen_max = get_valid_num("What score do you wish to be the winning score? (10 is a little, 50 is a good amount, 100+ is insane. Type '0' for no limit.): ", None)
+#If the user wants no score limit, pass in chosen_max as a None value.
         if not chosen_max:
           chosen_max == None
         playing = play_song('endless', chosen_lives = chosen_lives, chosen_max = chosen_max)
       elif which_mode == 2:
         playing = choose_preset_song()
+#If user wants to quit, end the playing loop
       else:
         playing = False
-
+#Function to choose a random key for endless mode
 def get_random_key():
+#Makes list of all keys
   x_list = [8, 108, 208, 308, 408, 508, 608, 708]
   x_sharp_list = [70, 170, 370, 470, 570]
+#Chooses either sharp or natural key
   which_list = random.randint(1, 2)
+#If sharp, choose from sharp list and set color / size values to sharp key values.
   if which_list == 2:
     x = random.choice(x_sharp_list)
     width = 35
@@ -83,6 +98,7 @@ def get_random_key():
     r = 6
     g = 22
     b = 43
+#If natural, set color/size to natural key values
   else:
     x = random.choice(x_list)
     width = 88
@@ -90,6 +106,7 @@ def get_random_key():
     r = 226
     g = 218
     b = 227
+#Return new key size, location and color. The key's location is an x-coordinate on the screen plane
   return x, width, height, r, g, b
 
 win_img = pygame.image.load("win_screen.png")
@@ -119,12 +136,10 @@ start_message = message_font.render("Press the right key to begin.", False, blac
 record_message = message_font.render(f"All-time record: {highscore}", False, black)
 help_message_1 = tips_font.render("When the background turns RED, hold LSHIFT.", False, black)
 help_message_2 = tips_font.render("When the background turns YELLOW, let go.", False, black)
-
 key_names = [letter_1, letter_2, letter_3, letter_4, letter_5, letter_6, letter_7, letter_8]
 sharp_names = [letter_9, letter_10, letter_11, letter_12, letter_13]
 
 def play_note(note_name, channel_number, note_file, mistake, good_note, total_mistake):
-
   pygame.mixer.Channel(channel_number).play(pygame.mixer.Sound(f'{note_file}'))
   if note_name == good_note:
     hit = True
@@ -135,60 +150,46 @@ def play_note(note_name, channel_number, note_file, mistake, good_note, total_mi
     hit = False
     return hit, mistake, total_mistake
 
-
-
-'''
-
-Each measure is 400 ticks
-4/4 time
-one eighth note is 50
-ti-ti is 50-50
-one quarter note is 100
-
-
-
-'''
-
-
-
-
-
-
 def make_preset_song(song):
+  song_notes = []
+  song_octaves = []
+  note_lengths = []
   if song == 'mii_channel':
-    song_notes = []
-    song_octaves = []
-    note_lengths = []
     with open('mii_song.txt') as mii_song_file:
       song_info = mii_song_file.readlines()
-
+    mii_song_message = message_font.render("Mii Channel Theme", False, black)
+  elif song == 'mii_maker':
+    with open('mii_maker.txt') as mii_song_file:
+      song_info = mii_song_file.readlines()
+    mii_song_message = message_font.render("Mii Maker 3DS Theme", False, black)
+    
   for line_list in song_info:
     current_line = line_list.split(",")
     current_line[-1] = current_line[-1].strip()
     song_notes.append(current_line[0])
     song_octaves.append(current_line[1])
     note_lengths.append(current_line[-1])
-
   song_notes = (list(map(str.strip, song_notes))) * 2
   song_octaves = (list(map(str.strip, song_octaves))) * 2
   for note in range(len(song_notes)):
       song_notes[note] = int(song_notes[note])
-
   song_info_dictionary = {
       'song_notes': song_notes,
       'song_octaves': song_octaves,
       'note_lengths': note_lengths
     }
-  
-  mii_song_message = message_font.render("Mii Channel Theme", False, black)
-  playing = play_song('song', song_info_dictionary, mii_song_message, note_speed = 10)
 
+  playing = play_song('song', song_info_dictionary, mii_song_message, note_speed = 10)
+  return playing
 
 def choose_preset_song():
-  print("\n\n----------\nYour song options are:\n1. Mii Channel Theme\n")
-  play_what_song = get_valid_num("Which song do you wish to play? Type the number beside the song.: ", 1)
+  print("\n\n----------\nYour song options are:\n1. Mii Channel Theme\n2. Mii Maker 3DS Theme")
+  play_what_song = get_valid_num("Which song do you wish to play? Type the number beside the song.: ", 2)
   if play_what_song == 1:
     playing = make_preset_song('mii_channel')
+  elif play_what_song == 2:
+    playing = make_preset_song('mii_maker')
+  return playing
 
 
 def play_song(mode, song_info_dictionary = None, song_message = '', note_speed = 0, chosen_lives = 10, chosen_max = None):
@@ -199,7 +200,7 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
     score = 0
     velocity_increase = 0
     lives = chosen_lives
-    velocity_increase = 1.5
+    velocity_increase = 1.25
   tiles_fallen = 0
   hit = False
   total_mistake = 0
@@ -233,7 +234,7 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
             game_verdict = 'win'
             key_is_falling = False
             playing_notes = False
-        if lives == 0:
+        elif lives == 0:
           game_verdict = 'lose'
           key_is_falling = False
           playing_notes = False
@@ -276,7 +277,6 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
           else:
             screen.fill((189, 151, 30))
           x = song_info_dictionary['song_notes'][note_count]
-          # int(song_info_dictionary['note_lengths'][note_count])
 
           pygame.time.delay(100)
           if tiles_fallen == 0:
@@ -301,14 +301,7 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
             pygame.draw.rect(screen, (255,255,255), rectangle)
           else:
             pygame.draw.rect(screen, (0,0,0), rectangle)
-      for note in song_info_dictionary['song_notes']:
-        y = 700
-        if x != 70 and x != 170 and x != 370 and x != 470 and x != 570:
-            pygame.draw.rect(screen, (255,255,255), (note, y, 88, 200))
-        else:
-            pygame.draw.rect(screen, (0,0,0), (note, y, 88, 200))
-        y -= int(song_info_dictionary['note_lengths'][note_count])
-      key_location = 40
+        key_location = 40
       for key_name in key_names:
         screen.blit(key_name, (key_location, 760))
         key_location += 100
@@ -421,6 +414,7 @@ def play_song(mode, song_info_dictionary = None, song_message = '', note_speed =
     if play_again == 'y':
       play_again_loop = False
       playing_notes = False
+      return True
     elif play_again == 'n':
       print("Goodbye!")
       play_again_loop = False
